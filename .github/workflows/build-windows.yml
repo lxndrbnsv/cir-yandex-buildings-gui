@@ -29,14 +29,16 @@ jobs:
         shell: python
         run: |
           import os
+          lines = [
+              "class Config(object):",
+              f'    DATABASE_NAME = "{os.environ["DB_NAME"]}"',
+              f'    DATABASE_USER = "{os.environ["DB_USER"]}"',
+              f'    DATABASE_PASSWORD = "{os.environ["DB_PASSWORD"]}"',
+              f'    DATABASE_HOST = "{os.environ["DB_HOST"]}"',
+              f'    DATABASE_PORT = "{os.environ["DB_PORT"]}"',
+          ]
           with open("config.py", "w", encoding="utf-8") as f:
-              f.write(f"""class Config(object):
-      DATABASE_NAME = "{os.environ['DB_NAME']}"
-      DATABASE_USER = "{os.environ['DB_USER']}"
-      DATABASE_PASSWORD = "{os.environ['DB_PASSWORD']}"
-      DATABASE_HOST = "{os.environ['DB_HOST']}"
-      DATABASE_PORT = "{os.environ['DB_PORT']}"
-  """)
+              f.write("\n".join(lines) + "\n")
 
       - name: Build EXE
         run: >
