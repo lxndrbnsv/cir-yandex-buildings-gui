@@ -21,17 +21,13 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: ${{ secrets.DB_PORT }}
-        shell: pwsh
         run: |
-          $lines = @(
-            'class Config(object):',
-            "    DATABASE_NAME = `"$env:DB_NAME`"",
-            "    DATABASE_USER = `"$env:DB_USER`"",
-            "    DATABASE_PASSWORD = `"$env:DB_PASSWORD`"",
-            "    DATABASE_HOST = `"$env:DB_HOST`"",
-            "    DATABASE_PORT = `"$env:DB_PORT`""
-          )
-          $lines -join "`n" | Set-Content -Path config.py -Encoding UTF8
+          Set-Content config.py 'class Config(object):'
+          Add-Content config.py "    DATABASE_NAME = ""$env:DB_NAME"""
+          Add-Content config.py "    DATABASE_USER = ""$env:DB_USER"""
+          Add-Content config.py "    DATABASE_PASSWORD = ""$env:DB_PASSWORD"""
+          Add-Content config.py "    DATABASE_HOST = ""$env:DB_HOST"""
+          Add-Content config.py "    DATABASE_PORT = ""$env:DB_PORT"""
 
       - run: >
           pyinstaller

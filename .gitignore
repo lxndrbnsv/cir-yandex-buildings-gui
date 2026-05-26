@@ -6,5 +6,6 @@ __pycache__/
 *.log
 *.json
 *.txt
+config.py
 config.json.backup
 results.xlsx
