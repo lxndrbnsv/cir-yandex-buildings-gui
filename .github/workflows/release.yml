@@ -26,19 +26,17 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: ${{ secrets.DB_PORT }}
-        shell: python
+        shell: pwsh
         run: |
-          import os
-          lines = [
-              "class Config(object):",
-              f'    DATABASE_NAME = "{os.environ["DB_NAME"]}"',
-              f'    DATABASE_USER = "{os.environ["DB_USER"]}"',
-              f'    DATABASE_PASSWORD = "{os.environ["DB_PASSWORD"]}"',
-              f'    DATABASE_HOST = "{os.environ["DB_HOST"]}"',
-              f'    DATABASE_PORT = "{os.environ["DB_PORT"]}"',
-          ]
-          with open("config.py", "w", encoding="utf-8") as f:
-              f.write("\n".join(lines) + "\n")
+          $lines = @(
+            'class Config(object):',
+            "    DATABASE_NAME = `"$env:DB_NAME`"",
+            "    DATABASE_USER = `"$env:DB_USER`"",
+            "    DATABASE_PASSWORD = `"$env:DB_PASSWORD`"",
+            "    DATABASE_HOST = `"$env:DB_HOST`"",
+            "    DATABASE_PORT = `"$env:DB_PORT`""
+          )
+          $lines -join "`n" | Set-Content -Path config.py -Encoding UTF8
 
       - name: Build EXE
         run: >
