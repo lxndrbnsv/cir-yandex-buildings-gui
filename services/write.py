@@ -1,8 +1,12 @@
+import os
 from openpyxl import load_workbook
+from services.util import create_results_wb
 
 
 class WriteXLSX:
     def __init__(self, company_dict):
+        if not os.path.exists("results.xlsx"):
+            create_results_wb()
         wb = load_workbook(filename="results.xlsx")
         ws = wb["Worksheet"]
 

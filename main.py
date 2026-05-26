@@ -23,10 +23,14 @@ warnings.filterwarnings("ignore", category=UserWarning)
 # sys.stdout = open("log.log", "w+")
 # sys.stderr = open("log.log", "w+")
 
-service = Service()
-options = webdriver.ChromeOptions()
-# options.add_argument("--headless")
-browser = webdriver.Chrome(service=service, options=options)
+def create_browser():
+    svc = Service()
+    opts = webdriver.ChromeOptions()
+    # opts.add_argument("--headless")
+    return webdriver.Chrome(service=svc, options=opts)
+
+
+browser = create_browser()
 
 
 # options = Options()
@@ -99,25 +103,39 @@ if __name__ == "__main__":
                 queries = ReadQueries(filepath=values["Обзор"]).queries
 
                 for q in queries:
-                    print(q)
-                    companies = GetCompanies(browser=browser, query=q).results
+                    for attempt in range(2):
+                        try:
+                            print(q)
+                            companies = GetCompanies(browser=browser, query=q).results
 
-                    print(f"Собрано {len(companies)} организаций.")
-                    print("Обработка данных:")
-                    phones = []
-                    for company in companies:
-                        company_dict = GetCompanyData(
-                            browser=browser, company_link=company
-                        ).data
+                            print(f"Собрано {len(companies)} организаций.")
+                            print("Обработка данных:")
+                            phones = []
+                            for company in companies:
+                                company_dict = GetCompanyData(
+                                    browser=browser, company_link=company
+                                ).data
 
-                        if company_dict is not None:
-                            company_dict["address"] = q
-                            company_dict["building_id"] = parse_query_string(q)
-                            WriteXLSX(company_dict=company_dict)
-                            print("Данные записаны")
-                            phones.append(company_dict["phone"])
-                        else:
-                            print("Отсутствуют контактные данные!")
+                                if company_dict is not None:
+                                    company_dict["address"] = q
+                                    company_dict["building_id"] = parse_query_string(q)
+                                    WriteXLSX(company_dict=company_dict)
+                                    print("Данные записаны")
+                                    phones.append(company_dict["phone"])
+                                else:
+                                    print("Отсутствуют контактные данные!")
+                            break
+                        except Exception as e:
+                            print(f"Ошибка: {e}")
+                            if attempt == 0:
+                                print("Перезапуск браузера...")
+                                try:
+                                    browser.quit()
+                                except Exception:
+                                    pass
+                                browser = create_browser()
+                            else:
+                                print(f"Пропускаем: {q}")
                     print("--- --- ---")
                 Sg.popup("Сбор данных завершён!")
             else:

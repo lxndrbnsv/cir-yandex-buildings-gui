@@ -1,13 +1,31 @@
 import re
 import os
-import shutil
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
+
+RESULTS_HEADERS = [
+    "Код", "Физлицо", "Водитель", "Группа", "Наименование",
+    "Юридическое наименование", "Юридический адрес", "Фактический адрес",
+    "Паспорт", "Должность", "Организация", "Область", "Район",
+    "ИНН", "КПП", "ОКПО", "ОГРН", "ОКВЭД",
+    "РабТел1", "РабТел2", "МобТел1", "МобТел2", "Факс", "Email",
+    "Вебсайт", "БИК", "Банк", "К/с", "Р/с",
+    "Скидка", "Заметки", "Тип организации",
+]
+
+
+def create_results_wb():
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Worksheet"
+    ws.append(RESULTS_HEADERS)
+    wb.save("results.xlsx")
 
 
 class ClearWB:
     def __init__(self):
-        os.remove("./results.xlsx")
-        shutil.copy("./template.xlsx", "./results.xlsx")
+        if os.path.exists("./results.xlsx"):
+            os.remove("./results.xlsx")
+        create_results_wb()
 
 
 class CheckWB:
