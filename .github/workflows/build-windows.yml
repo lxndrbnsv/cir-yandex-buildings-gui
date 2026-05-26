@@ -1,0 +1,57 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [buildings-gui]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Create config.py from secrets
+        env:
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+        shell: python
+        run: |
+          import os
+          with open("config.py", "w", encoding="utf-8") as f:
+              f.write(f"""class Config(object):
+      DATABASE_NAME = "{os.environ['DB_NAME']}"
+      DATABASE_USER = "{os.environ['DB_USER']}"
+      DATABASE_PASSWORD = "{os.environ['DB_PASSWORD']}"
+      DATABASE_HOST = "{os.environ['DB_HOST']}"
+      DATABASE_PORT = "{os.environ['DB_PORT']}"
+  """)
+
+      - name: Build EXE
+        run: >
+          pyinstaller
+          --onefile
+          --windowed
+          --hidden-import=pymysql
+          --hidden-import=sqlalchemy.dialects.mysql
+          --hidden-import=sqlalchemy.ext.automap
+          --name YandexMapsScraper
+          main.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: YandexMapsScraper-windows
+          path: dist/YandexMapsScraper.exe
+          retention-days: 30
