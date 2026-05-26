@@ -8,7 +8,6 @@ __pycache__/
 !config.sample.json
 *.txt
 !requirements.txt
-config.py
 config.sample.py
 config.json.backup
 results.xlsx
