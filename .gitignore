@@ -6,6 +6,9 @@ __pycache__/
 *.log
 *.json
 *.txt
+!requirements.txt
+.env
 config.py
+config.sample.py
 config.json.backup
 results.xlsx
