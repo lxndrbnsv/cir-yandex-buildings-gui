@@ -152,3 +152,4 @@ if __name__ == "__main__":
                 Sg.popup_ok("Прокси добавлен!")
 
     browser.quit()
+    
