@@ -1,6 +1,9 @@
 name: Release
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,10 +14,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
-      - run: pip install -r requirements.txt pyinstaller
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
 
       - name: Create config.py from secrets
+        shell: pwsh
         env:
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_USER: ${{ secrets.DB_USER }}
@@ -22,22 +31,27 @@ jobs:
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: ${{ secrets.DB_PORT }}
         run: |
-          Set-Content config.py 'class Config(object):'
-          Add-Content config.py "    DATABASE_NAME = ""$env:DB_NAME"""
-          Add-Content config.py "    DATABASE_USER = ""$env:DB_USER"""
-          Add-Content config.py "    DATABASE_PASSWORD = ""$env:DB_PASSWORD"""
-          Add-Content config.py "    DATABASE_HOST = ""$env:DB_HOST"""
-          Add-Content config.py "    DATABASE_PORT = ""$env:DB_PORT"""
+          @"
+          class Config(object):
+              DATABASE_NAME = "$env:DB_NAME"
+              DATABASE_USER = "$env:DB_USER"
+              DATABASE_PASSWORD = "$env:DB_PASSWORD"
+              DATABASE_HOST = "$env:DB_HOST"
+              DATABASE_PORT = "$env:DB_PORT"
+          "@ | Set-Content -Path config.py -Encoding UTF8
 
-      - run: >
-          pyinstaller
-          --onefile
-          --windowed
-          --hidden-import=pymysql
-          --hidden-import=sqlalchemy.dialects.mysql
-          --hidden-import=sqlalchemy.ext.automap
-          --name YandexMapsScraper
-          main.py
+      - name: Verify config.py
+        shell: pwsh
+        run: Get-Content config.py
+
+      - name: Build exe
+        run: |
+          pyinstaller --onefile --windowed `
+            --hidden-import=pymysql `
+            --hidden-import=sqlalchemy.dialects.mysql `
+            --hidden-import=sqlalchemy.ext.automap `
+            --name YandexMapsScraper `
+            main.py
 
       - uses: actions/upload-artifact@v4
         with:
