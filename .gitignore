@@ -7,3 +7,4 @@ __pycache__/
 *.json
 *.txt
 config.py 
+config.json.backup
