@@ -24,18 +24,9 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Create .env from secrets
-        run: |
-          "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" | Out-File -FilePath .env -Encoding utf8
-          "DATABASE_USER=${{ secrets.DATABASE_USER }}" | Out-File -FilePath .env -Encoding utf8 -Append
-          "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" | Out-File -FilePath .env -Encoding utf8 -Append
-          "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" | Out-File -FilePath .env -Encoding utf8 -Append
-          "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" | Out-File -FilePath .env -Encoding utf8 -Append
-
       - name: Build with PyInstaller
         run: |
           pyinstaller --onefile --windowed --name "YandexMapsScraper" `
-            --add-data ".env;." `
             --add-data "template.xlsx;." `
             --add-data "data;data" `
             main.py
