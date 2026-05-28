@@ -1,5 +1,3 @@
-# TODO: Телемаркетинг -> Закрыто и не реализовано
-
 import warnings
 import threading
 import tkinter as tk

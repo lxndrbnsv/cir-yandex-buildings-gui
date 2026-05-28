@@ -1,10 +1,10 @@
 class ReadQueries:
     def __init__(self, filepath):
-        with open(filepath) as text_file:
-            text_data = text_file.readlines()
+        try:
+            with open(filepath, encoding='utf-8-sig') as text_file:
+                text_data = text_file.readlines()
+        except UnicodeDecodeError:
+            with open(filepath, encoding='cp1251') as text_file:
+                text_data = text_file.readlines()
 
-        new_data = []
-        for t in text_data:
-            new_data.append(t.replace("\n", ""))
-
-        self.queries = new_data
+        self.queries = [t.rstrip('\n') for t in text_data]
